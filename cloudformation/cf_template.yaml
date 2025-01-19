@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: >
+  A simple CloudFormation template to create a DynamoDB table and an S3 bucket to host Terraform state files.
+
+Parameters:
+  funcionName:
+    Type: String
+    Description: The name of the function
+    Default: "my-function"
+
+Resources:
+  
+  # DynamoDB Table for State Locking
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "terraform-state-${funcionName}"  # Use function_name in table name
+      AttributeDefinitions:
+        - AttributeName: "LockID"  # Lock ID used by Terraform for state locking
+          AttributeType: "S"  # String type for the partition key
+      KeySchema:
+        - AttributeName: "LockID"
+          KeyType: "HASH"  # Partition key (LockID)
+      BillingMode: PAY_PER_REQUEST  # On-Demand mode (no need to provision capacity)
+      SSESpecification:
+        SSEEnabled: true  # Enable server-side encryption for DynamoDB
+      TimeToLiveSpecification:
+        AttributeName: "ttl"
+        Enabled: true  # Set TTL for old lock records (optional)
+
+  # S3 Bucket for Terraform State
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "terraform-state-${funcionName}"  # Use function_name in bucket name
+      AccessControl: Private  # Explicitly set the bucket to private
+      VersioningConfiguration:
+        Status: Enabled  # Enable versioning for state files
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+Outputs:
+  DynamoDBTableName:
+    Value: !Ref DynamoDBTable
+    Description: "The DynamoDB table name used for state locking"
+  
+  S3BucketName:
+    Value: !Ref S3Bucket
+    Description: "The S3 bucket name used for storing Terraform state"
