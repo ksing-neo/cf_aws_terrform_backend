@@ -4,7 +4,7 @@ Description: >
   A simple CloudFormation template to create a DynamoDB table and an S3 bucket to host Terraform state files.
 
 Parameters:
-  funcionName:
+  functionName:
     Type: String
     Description: The name of the function
     Default: "my-function"
