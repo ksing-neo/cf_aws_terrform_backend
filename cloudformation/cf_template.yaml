@@ -15,7 +15,7 @@ Resources:
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub "terraform-state-${funcionName}"  # Use function_name in table name
+      TableName: !Sub "terraform-state-${functionName}"  # Use function_name in table name
       AttributeDefinitions:
         - AttributeName: "LockID"  # Lock ID used by Terraform for state locking
           AttributeType: "S"  # String type for the partition key
@@ -33,7 +33,7 @@ Resources:
   S3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "terraform-state-${funcionName}"  # Use function_name in bucket name
+      BucketName: !Sub "terraform-state-${functionName}"  # Use function_name in bucket name
       AccessControl: Private  # Explicitly set the bucket to private
       VersioningConfiguration:
         Status: Enabled  # Enable versioning for state files
